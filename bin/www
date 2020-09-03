@@ -35,6 +35,7 @@ server.on('error', (error) => {
       throw error;
   }
 });
+
 server.on('listening', () => {
   var addr = server.address();
   var bind = typeof addr === 'string'

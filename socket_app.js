@@ -27,6 +27,7 @@ io.on('connect', (socket) => {
 
     socket.on('join_room', (data) => {
         let result = false
+
         for(let i in room_info){
             if(room_info[i].room_id === data){
                 if(room_info[i].members.length === 1){
@@ -49,19 +50,16 @@ io.on('connect', (socket) => {
     })
 
     socket.on('disconnect', () => {
-        console.log('socket_app disconnected')
-
-        console.log(room_info)
-
-        var isRoomDeleted = false
+        let room_id = -1
+        let isRoomDeleted = false
+        let flag = false
 
         for(var i in room_info){
-            let flag = false
             for(var j in room_info[i].members){
                 if(room_info[i].members[j] === socket.id){
                     //delete the member from the room
-                    console.log(i, j)
-                     room_info[i].members.splice(j, 1)
+                    room_id = room_info[i].room_id
+                    room_info[i].members.splice(j, 1)
                     //delete the room
                     if(room_info[i].members.length === 0){
                         room_info.splice(i, 1)
@@ -77,14 +75,13 @@ io.on('connect', (socket) => {
             }
         }
 
-        console.log(room_info)
-
-        io.emit('leave_room', {
-            room_id: parseInt(i)+1,
-            socket_id: socket.id,
-            isRoomDeleted: isRoomDeleted
-        })
-
+        if(room_id > 0){
+            io.emit('leave_room', {
+                room_id: room_id,
+                socket_id: socket.id,
+                isRoomDeleted: isRoomDeleted
+            })
+        }
     })
 
     io.to(socket.id).emit('init_room_info', room_info)
